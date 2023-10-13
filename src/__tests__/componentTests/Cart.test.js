@@ -17,7 +17,7 @@ describe('Cart initialisation', () => {
     const store = mockStore({
       cart: {
         cart: [],
-      }
+      },
     });
 
     render(
@@ -26,17 +26,17 @@ describe('Cart initialisation', () => {
           <Cart />
         </MemoryRouter>
       </Provider>
-    )
+    );
 
-    expect(screen.getByText('Your cart is empty')).toBeInTheDocument();
+    expect(screen.getByText(/Your cart is empty/i)).toBeInTheDocument();
   });
 
   it('Should render a list of products from the cart', () => {
     const store = mockStore({
       cart: {
-        cart: cartItems
-      }
-    })
+        cart: cartItems,
+      },
+    });
 
     render(
       <Provider store={store}>
@@ -44,8 +44,34 @@ describe('Cart initialisation', () => {
           <Cart />
         </MemoryRouter>
       </Provider>
-    )
+    );
 
     expect(screen.getAllByTestId('product')).toHaveLength(2);
+  });
+
+  it('Should render the total price of the cart', () => {
+    const store = mockStore({
+      cart: {
+        cart: cartItems,
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <Cart />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(screen.getByText(/Total Price/i)).toBeInTheDocument();
+
+    // Start at zero and add the price of each item in the cart
+    const expectedPrice = cartItems.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    expect(screen.getByText(`${expectedPrice} €`)).toBeInTheDocument();
   });
 });
